@@ -35,17 +35,17 @@ const SignUp = () => {
   }, [hashedPassword]);
 
   const handleFormUpdate = (e) => {
-    const inputName = e.target.name;
-    const inputValue = e.target.value;
+    const stateName = e.target.name;
+    const stateUpdateValue = e.target.value;
 
-    const inputs = {
+    const stateUpdaters = {
       username: setUsername,
       email: setEmail,
       password: setPassword,
       'confirm-password': setPasswordConfirmation,
     };
 
-    inputs[inputName](inputValue);
+    stateUpdaters[stateName](stateUpdateValue);
   };
 
   const onSubmit = (e) => {
