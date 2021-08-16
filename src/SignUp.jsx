@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 const bcrypt = require('bcryptjs');
 
@@ -15,46 +16,47 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignUp = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [hashedPassword, setHashedPassword] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
-  const userInfo = { username, hashedPassword, email };
-
+const SignUp = ({ fakeAuth }) => {
+  const history = useHistory();
   const classes = useStyles();
+  const [userInfo, setUserInfo] = useState({
+    username: '',
+    password: '',
+    email: '',
+    passwordConfirmation: '',
+    hashedPassword: '',
+  });
 
   useEffect(() => {
-    console.log('first');
-    axios.post('/firebase', userInfo).then();
+    const { password, passwordConfirmation, ...userData } = userInfo;
 
-    return () => {
-      console.log('second');
-    };
-  }, [hashedPassword]);
+    axios.post('/firebase', userData).then(({ data: { isAuth } }) => {
+      return isAuth ? fakeAuth.authenticate(() => history.push('/')) : null;
+    });
 
-  const handleFormUpdate = (e) => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo.hashedPassword]);
+
+  const handleStateUpdate = (e) => {
     const stateName = e.target.name;
     const stateUpdateValue = e.target.value;
-
-    const stateUpdaters = {
-      username: setUsername,
-      email: setEmail,
-      password: setPassword,
-      'confirm-password': setPasswordConfirmation,
-    };
-
-    stateUpdaters[stateName](stateUpdateValue);
+    const stateToUpdate = { [stateName]: stateUpdateValue };
+    const updatedState = Object.assign({}, userInfo, stateToUpdate);
+    setUserInfo(updatedState);
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
+    const { password, passwordConfirmation } = userInfo;
 
     (async () => {
       if (password === passwordConfirmation) {
-        const encrypted = await bcrypt.hashSync(password, bcrypt.genSaltSync());
-        setHashedPassword(encrypted);
+        const salt = await bcrypt.genSaltSync();
+        const hashedPassword = await bcrypt.hashSync(password, salt);
+        const hashStateUpdate = Object.assign({}, userInfo, {
+          hashedPassword: hashedPassword,
+        });
+        setUserInfo(hashStateUpdate);
       } else {
         console.log('Passwords do not match.');
       }
@@ -75,7 +77,7 @@ const SignUp = () => {
               variant="filled"
               size="small"
               autoFocus
-              onChange={handleFormUpdate}
+              onChange={handleStateUpdate}
             />
           </Grid>
           <Grid item className={classes.item}>
@@ -84,7 +86,7 @@ const SignUp = () => {
               name="email"
               variant="filled"
               size="small"
-              onChange={handleFormUpdate}
+              onChange={handleStateUpdate}
             />
           </Grid>
           <Grid item className={classes.item}>
@@ -93,16 +95,16 @@ const SignUp = () => {
               name="password"
               variant="filled"
               size="small"
-              onChange={handleFormUpdate}
+              onChange={handleStateUpdate}
             />
           </Grid>
           <Grid item className={classes.item}>
             <TextField
               label="Confirm Password"
-              name="confirm-password"
+              name="passwordConfirmation"
               variant="filled"
               size="small"
-              onChange={handleFormUpdate}
+              onChange={handleStateUpdate}
             />
           </Grid>
           <Grid item className={classes.item}>

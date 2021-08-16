@@ -8,34 +8,36 @@ import {
 } from 'react-router-dom';
 import './App.css';
 import SignUp from './SignUp';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@material-ui/core';
-
-const fakeAuth = {
-  isAuthenticated: false,
-  authenticate(cb) {
-    this.isAuthenticated = true;
-    cb();
-  },
-  signout(cb) {
-    this.isAuthenticated = false;
-    setTimeout(cb, 100); // fake async
-  },
-};
 
 function App() {
   const [redirectToReferrer, setRedirectToReferrer] = useState(false);
   const history = useHistory();
   const { state } = useLocation();
+  const [authenticated, setAuthenticated] = useState(false);
+  const stateRef = useRef();
+
+  const fakeAuth = {
+    authenticate(cb) {
+      setAuthenticated((state) => {
+        stateRef.current = !state;
+        return !state;
+      });
+      cb();
+    },
+    signout(cb) {
+      this.isAuthenticated = false;
+      setTimeout(cb, 100); // fake async
+    },
+  };
 
   const login = () => {
     fakeAuth.authenticate(() => {
-      console.log('insiddee', fakeAuth.isAuthenticated);
       setRedirectToReferrer(true);
     });
 
-    if (redirectToReferrer === true) {
-      console.log('red', redirectToReferrer);
+    if (stateRef.current) {
       return history.push('/');
     } else {
       console.log('black');
@@ -43,16 +45,14 @@ function App() {
   };
 
   const ProtectedRoute = ({ component: Component, ...rest }) => {
-    console.log('now: ', fakeAuth.isAuthenticated);
+    console.log('now: ', stateRef.current);
+    console.log('nowNow: ', authenticated);
+
     return (
       <Route
         {...rest}
         render={() => {
-          return fakeAuth.isAuthenticated === true ? (
-            <Component />
-          ) : (
-            <Redirect to="/welcome" />
-          );
+          return authenticated ? <Component /> : <Redirect to="/welcome" />;
         }}
       />
     );
@@ -72,7 +72,7 @@ function App() {
           </ul>
         </Route>
         <Route path="/sign-up">
-          <SignUp />
+          <SignUp fakeAuth={fakeAuth} />
         </Route>
       </Switch>
     </div>

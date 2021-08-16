@@ -5,6 +5,7 @@ const PORT = process.env.PORT || 9000;
 const bodyParser = require('body-parser');
 const chalk = require('chalk');
 const util = require('util');
+const { resolveSoa } = require('dns');
 
 const log = (...params) => {
   console.log(
@@ -23,8 +24,11 @@ app.use(express.json());
 
 app.post('/firebase', (req, res) => {
   const { username, hashedPassword: pw, email } = req.body;
-
-  log('testing', req.body);
+  console.log('inside', req.body);
+  return req.body.username.length > 0
+    ? res.send({ isAuth: true })
+    : res.send({ isAuth: false });
+  // res.send({ isAsuth: true });
 });
 
 app.listen(PORT, () => {
