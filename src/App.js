@@ -1,13 +1,14 @@
 import {
   Route,
   Switch,
-  Link,
   Redirect,
   useHistory,
   useLocation,
 } from 'react-router-dom';
 import './App.css';
 import SignUp from './SignUp';
+import SignIn from './SignIn/SignIn';
+import WelcomePage from './WelcomePage';
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@material-ui/core';
 
@@ -45,9 +46,6 @@ function App() {
   };
 
   const ProtectedRoute = ({ component: Component, ...rest }) => {
-    console.log('now: ', stateRef.current);
-    console.log('nowNow: ', authenticated);
-
     return (
       <Route
         {...rest}
@@ -57,47 +55,24 @@ function App() {
       />
     );
   };
+
   return (
     <div className="App">
       <Switch>
         <ProtectedRoute exact path="/" component={Home} />
         <Route path="/welcome">
-          <p>You must log in to view the page</p>
-
-          <ul>
-            <Link to="sign-up">Sign Up</Link>
-            <Button variant="contained" color="primary" onClick={login}>
-              Log In
-            </Button>
-          </ul>
+          <WelcomePage />
         </Route>
         <Route path="/sign-up">
           <SignUp fakeAuth={fakeAuth} />
+        </Route>
+        <Route path="/sign-in">
+          <SignIn />
         </Route>
       </Switch>
     </div>
   );
 }
-
-// const LogIn = () => {
-//   const [redirectToReferrer, setRedirectToReferrer] = useState(false);
-
-//   const login = () =>
-//     fakeAuth.authenticate(() => {
-//       setRedirectToReferrer(true);
-//     });
-
-//   if (redirectToReferrer === true) {
-//     return <Redirect to="/" />;
-//   }
-
-//   return (
-//     <div>
-//       <p>You must log in to view the page</p>
-//       <button onClick={login}>Log in</button>
-//     </div>
-//   );
-// };
 
 const Home = () => {
   return <p>Home Page</p>;

@@ -1,0 +1,19 @@
+/* input[type='password'],
+input[type='text'] {
+  width: 400px;
+  padding: 0.65rem 0.5rem;
+  font-size: 1rem;
+  border: 2px solid var(--gray-200);
+  background-color: lightgray;
+  border-radius: 10px;
+} */
+
+/* label {
+  margin-top: 1rem;
+  font-weight: bold;
+  display: block;
+}
+
+button[type='submit'] {
+  margin-top: 1rem;
+} */

@@ -51,8 +51,8 @@ const SignUp = ({ fakeAuth }) => {
 
     (async () => {
       if (password === passwordConfirmation) {
-        const salt = await bcrypt.genSaltSync();
-        const hashedPassword = await bcrypt.hashSync(password, salt);
+        // const salt = await bcrypt.genSaltSync();
+        const hashedPassword = await bcrypt.hash(password, 10);
         const hashStateUpdate = Object.assign({}, userInfo, {
           hashedPassword: hashedPassword,
         });
